@@ -1,0 +1,95 @@
+[
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "ito",
+				"type": "address"
+			}
+		],
+		"name": "ITOCREATED",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "baseToken",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "specialToken",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "isAutoList",
+						"type": "bool"
+					},
+					{
+						"internalType": "bool",
+						"name": "isWhitelist",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "presaleRate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "softCap",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "hardCap",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "minBuy",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "maxBuy",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "specialThreshold",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct FactoryITOERC20.DataCommon",
+				"name": "data",
+				"type": "tuple"
+			},
+			{
+				"internalType": "enum BaseITOERC20.RefundType",
+				"name": "refundType",
+				"type": "uint8"
+			}
+		],
+		"name": "createERC20ITO",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]

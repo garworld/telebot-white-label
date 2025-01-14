@@ -1,0 +1,16 @@
+FROM node
+
+ARG DATABASE_URL=${DATABASE_URL}
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+COPY . /app
+WORKDIR /app
+
+RUN pnpm install
+RUN export DATABASE_URL=${DATABASE_URL} && \
+    pnpm prisma:migrate:deploy && \
+    pnpm prisma:generate
+EXPOSE 11888
+CMD [ "node", "webhook.js" ]

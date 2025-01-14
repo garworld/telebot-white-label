@@ -1,0 +1,8 @@
+# Use the official Nginx image as the base image
+FROM nginx:latest
+
+ARG RETURN_JWK=${RETURN_JWK}
+ 
+RUN echo ${RETURN_JWK} > /usr/share/nginx/html/jwk.json
+
+EXPOSE 80

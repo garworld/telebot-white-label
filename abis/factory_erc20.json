@@ -1,0 +1,43 @@
+[
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "erc20Contract",
+				"type": "address"
+			}
+		],
+		"name": "CREATED",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name_",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "symbol_",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalSupply_",
+				"type": "uint256"
+			}
+		],
+		"name": "deployNewERC20Token",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
