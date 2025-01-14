@@ -1,0 +1,150 @@
+//
+const { ethers } = require("ethers");
+
+//
+const snipeTokenMessage = require("../../messages/snipeTokenMessage");
+const { snipeTokenPage1 } = require("../../modes");
+const { CHAIN_USED } = require("../../../constants/buytoken");
+const { SNIPE_SETTINGS } = require("../../../constants/sniping");
+const { getSniperMode, getTargetSnipe } = require("../../../databases");
+const { ethUsd } = require("../../../helpers/tokenPrice");
+
+module.exports = async ({ bot, msg, redis, chains }) => {
+  //
+  const chainused = Number(await redis.GET(msg.chat.id + CHAIN_USED));
+  const ethusd = await ethUsd();
+
+  // remove last message
+  if (msg.message_id) {
+    bot.deleteMessage(msg.chat.id, msg.message_id);
+  }
+
+  if (chains[chainused].chain_id === 1) {
+
+    let snipingPreparation = {
+      address: "-",
+      amount: 0.1,
+      tip: 0.01,
+      slippage: 100,
+      max_spend: 0.0,
+      wallet_used: [],
+      first_or_fail: true, // check gas price -1 wei , if fail on the same block, then failed
+      degen_mode: true, // * skip for tax (to token owner) the upper than limit if false
+      anti_rug: false, // * if true, sell first than the unexpected tax
+      max_tx: false, // if true, max tx set on contract > our spend limit to transaction then revert
+      min_tx: false, // if true, min tx set on contract > our spend limit to transaction then revert 
+      pre_approve: false, // if true, direct approve when snipe buying is succeedeed
+      tx_on_blacklist: false, // * should tx even on blacklisted list
+      approve_gwei: 30, // adding this amount of gwei then gas price
+      sell_gwei: 30, // * when sell
+      anti_rug_gwei: 30, // * when anti rug
+      buy_tax: 10, // * higher than set tax on contract, then buy
+      sell_tax: 10, // * higher then set tax on contract, then sell
+      min_liquidity: 10, // on USD convert to ETH, if liquidity lower than this, then not trigger
+      max_liquidity: 100, // on USD convert to ETH, if liquidity higher than this, then not trigger
+    }
+
+    const sniperMode = await getSniperMode(msg.chat.id, chains[chainused].chain_id);
+    const targetSnipe = await getTargetSnipe(msg.chat.id, chains[chainused].chain_id);
+    // console.log({
+    //   sniperMode,
+    //   targetSnipe
+    // });
+
+    if (sniperMode) {
+      snipingPreparation.max_spend = sniperMode.max_spend;
+      snipingPreparation.wallet_used = sniperMode.wallet_used;
+      snipingPreparation.first_or_fail = sniperMode.first_or_fail;
+      snipingPreparation.degen_mode = sniperMode.degen_mode;
+      snipingPreparation.anti_rug = sniperMode.anti_rug;
+      snipingPreparation.max_tx = sniperMode.max_tx;
+      snipingPreparation.min_tx = sniperMode.min_tx;
+      snipingPreparation.pre_approve = sniperMode.pre_approve;
+      snipingPreparation.tx_on_blacklist = sniperMode.tx_on_blacklist;
+      snipingPreparation.approve_gwei = sniperMode.approve_gwei;
+      snipingPreparation.sell_gwei = sniperMode.sell_gwei;
+      snipingPreparation.anti_rug_gwei = sniperMode.anti_rug_gwei;
+      snipingPreparation.buy_tax = sniperMode.buy_tax;
+      snipingPreparation.sell_tax = sniperMode.sell_tax;
+      snipingPreparation.min_liquidity = sniperMode.min_liquidity;
+      snipingPreparation.max_liquidity = sniperMode.max_liquidity;
+    }
+
+    if (targetSnipe.length > 0) {
+      snipingPreparation.address = targetSnipe[0].address;
+      snipingPreparation.amount = targetSnipe[0].amount;
+      snipingPreparation.tip = targetSnipe[0].tip;
+      snipingPreparation.slippage = targetSnipe[0].slippage;
+    }
+
+    if (sniperMode && targetSnipe.length > 0) {
+      await redis.SET(msg.chat.id + SNIPE_SETTINGS, JSON.stringify({
+        sniperMode,
+        targetSnipe
+      }));
+    } else {
+      await redis.SET(msg.chat.id + SNIPE_SETTINGS, JSON.stringify({
+        sniperMode: {
+          max_spend: 0.0,
+          wallet_used: [],
+          first_or_fail: true, // check gas price -1 wei , if fail on the same block, then failed
+          degen_mode: true, // * skip for tax (to token owner) the upper than limit if false
+          anti_rug: false, // * if true, sell first than the unexpected tax
+          max_tx: false, // if true, max tx set on contract > our spend limit to transaction then revert
+          min_tx: false, // if true, min tx set on contract > our spend limit to transaction then revert 
+          pre_approve: false, // if true, direct approve when snipe buying is succeedeed
+          tx_on_blacklist: false, // * should tx even on blacklisted list
+          approve_gwei: 30, // adding this amount of gwei then gas price
+          sell_gwei: 30, // * when sell
+          anti_rug_gwei: 30, // * when anti rug
+          buy_tax: 10, // * higher than set tax on contract, then buy
+          sell_tax: 10, // * higher then set tax on contract, then sell
+          min_liquidity: 10, // on USD convert to ETH, if liquidity lower than this, then not trigger
+          max_liquidity: 100, // on USD convert to ETH, if liquidity higher than this, then not trigger
+        },
+        targetSnipe: [{
+          address: "-",
+          amount: 0.1,
+          tip: 0.01,
+          slippage: 100,
+        }]
+      }));
+    }
+
+    // default inline keyboard
+    const defaultInlineKey = snipeTokenPage1(snipingPreparation);
+
+    // provider
+    const provider = new ethers.providers.JsonRpcProvider(
+      chains[chainused].rpc_provider
+    );
+    
+    //
+    const message = await snipeTokenMessage(msg, snipingPreparation, provider, chainused, ethusd);
+
+    //
+    await bot.sendMessage(msg.chat.id, message, {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: defaultInlineKey,
+      },
+    });
+  } else {
+    //
+    await bot.sendMessage(msg.chat.id, 'This chain is currently not supported', {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "\u2261 Menu",
+              callback_data: "!menu",
+            },
+          ],
+        ]
+      },
+    });
+  }
+};
