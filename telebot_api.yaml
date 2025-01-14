@@ -1,0 +1,85 @@
+openapi: 3.0.3
+info:
+  title: JamesBot API
+  version: 1.0.0
+  contact: {}
+servers:
+- url: https://jbotapi.dapsdev.com
+paths:
+  /tlink/register:
+    post:
+      summary: Create Key
+      description: Create Key
+      operationId: createKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                link:
+                  type: string
+                  example: https://jamesbot.ai/
+                name:
+                  type: string
+                  example: telebot
+            examples:
+              Create Key:
+                value:
+                  link: https://jamesbot.ai/
+                  name: James Bot
+      responses:
+        '200':
+          description: ''
+  /tlink/buy:
+    get:
+      summary: James Bot Buy
+      description: James Bot Buy
+      operationId: telebotBuy
+      parameters:
+      - name: key
+        in: query
+        schema:
+          type: string
+          example: 478efb13-6a3f-42ba-9492-8f00ec938703
+        description: mandatory, get it from Create Key
+      - name: action
+        in: query
+        schema:
+          type: string
+          example: buy
+        description: 'mandatory, available action: buy'
+      - name: chain
+        in: query
+        schema:
+          type: string
+          example: '42161'
+        description: 'chain_id, available chain: eth-mainnet (1), arbitrum (42161), avalanche c-chain (43114), metis andromeda (1088), solana (1399811149)'
+      - name: amount
+        in: query
+        schema:
+          type: string
+          example: '0.001'
+        description: 'optional, default amount: 1'
+      - name: address
+        in: query
+        schema:
+          type: string
+          example: '0x1426cf37caa89628c4da2864e40cf75e6d66ac6b'
+        description: mandatory, token address to buy
+      - name: wallet
+        in: query
+        schema:
+          type: string
+          example: '1'
+        description: 'optional, available wallet: 1,2,3 (multiple use comma)'
+      - name: unit
+        in: query
+        schema:
+          type: string
+          example: USDT
+        description: 'optional, default unit: native coin, available unit: native coin, USDC, USDT'
+      responses:
+        '302':
+          description: 'Redirected directly to the James Bot Telegram Bot'
+tags: []
