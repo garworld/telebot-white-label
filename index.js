@@ -3232,12 +3232,15 @@ const startApp = async () => {
 
     // app.register(require("./routes/routes"));
 
-    app.listen({ port: Number(process.env.BOT_PORT || 8443), host: "0.0.0.0" }, (err) => {
-      if (err) {
-        app.log.error(err.message);
-        process.exit(1);
+    app.listen(
+      { port: Number(process.env.BOT_PORT || 8443), host: "0.0.0.0" },
+      (err) => {
+        if (err) {
+          app.log.error(err.message);
+          process.exit(1);
+        }
       }
-    });
+    );
 
     //
     dispatch(

@@ -1,0 +1,90 @@
+name: JamesBot Deployment
+on:
+  push:
+    branches:
+      - main
+jobs:
+  ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1.1 Deploy to JemmmsBot VM
+      - name: Deploy
+        uses: cross-the-world/ssh-pipeline@v1.2.0
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          user: ${{ secrets.PROD_USER }}
+          pass: ${{ secrets.PROD_PASS }}
+          port: ${{ secrets.PROD_PORT }}
+          connect_timeout: 10s
+          script: |
+            cd /home/jamesbot/telebot/
+
+            git pull --rebase
+
+            touch .env
+            echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" &> .env
+            echo "TELEBOT=${{ secrets.PROD_TELEBOT }}" &>> .env
+            echo "MORALIS_KEY=${{ secrets.PROD_MORALIS_KEY }}" &>> .env
+            echo "COVALENT_API_KEY=${{ secrets.PROD_COVALENT_API_KEY }}" &>> .env
+            echo "RPC_PROVIDER=${{ secrets.RPC_PROVIDER }}" &>> .env
+            echo "ETH_RPC_PROVIDER=${{ secrets.ETH_RPC_PROVIDER }}" &>> .env
+            echo "ARB_RPC_PROVIDER=${{ secrets.ARB_RPC_PROVIDER }}" &>> .env
+            echo "AVA_RPC_PROVIDER=${{ secrets.AVA_RPC_PROVIDER }}" &>> .env
+            echo "BASE_RPC_PROVIDER=${{ secrets.BASE_RPC_PROVIDER }}" &>> .env
+            echo "METIS_RPC_PROVIDER=\"${{ secrets.METIS_RPC_PROVIDER }}\"" &>> .env
+            echo "SOLANA_RPC_PROVIDER=\"${{ secrets.SOLANA_RPC_PROVIDER }}\"" &>> .env
+            echo "HELIUS_API_KEY=\"${{ secrets.PROD_HELIUS_KEY }}\"" &>> .env
+            echo "REDIS_URL=${{ secrets.PROD_REDIS_URL }}" &>> .env
+            echo "PLATFORM_WALLET=${{ secrets.PLATFORM_WALLET }}" &>> .env
+            echo "ONE_INCH_API_KEY=${{ secrets.ONE_INCH_API_KEY }}" &>> .env
+            echo "SECRET_KEY=${{ secrets.PROD_SECRET_KEY }}" &>> .env
+            echo "WEB3AUTH_CLIENT_ID=${{ secrets.PROD_WEB3AUTH_CLIENT_ID }}" &>> .env
+            echo "WEB3AUTH_VERIFIER=${{ secrets.PROD_WEB3AUTH_VERIFIER }}" &>> .env
+            echo "WEB3AUTH_AUD=${{ secrets.PROD_WEB3AUTH_AUD }}" &>> .env
+            echo "WEB3AUTH_ISS=${{ secrets.PROD_WEB3AUTH_ISS }}" &>> .env
+            echo "WEB3AUTH_KEY_ID=${{ secrets.PROD_WEB3AUTH_KEY_ID }}" &>> .env
+            echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" &>> .env
+            echo "ALCHEMY_KEY=${{ secrets.PROD_ALCHEMY_KEY }}" &>> .env
+            echo "ALCHEMY_WEBHOOK_KEY=${{ secrets.PROD_ALCHEMY_WEBHOOK_KEY }}" &>> .env
+            echo "ARB_WEBHOOK_URL=${{ vars.PROD_ARB_WEBHOOK_URL }}" &>> .env
+            echo "ETH_WEBHOOK_URL=${{ vars.PROD_ETH_WEBHOOK_URL }}" &>> .env
+            echo "SOL_WEBHOOK_URL=${{ vars.PROD_SOL_WEBHOOK_URL }}" &>> .env
+            echo "TELEBOT_URL=${{ vars.PROD_TELEBOT_URL }}" &>> .env
+            echo "PLATFORM_SOL_WALLET=${{ secrets.PROD_PLATFORM_SOL_WALLET }}" &>> .env
+            echo "MESSENGER_CAPACITY=${{ vars.PROD_MESSENGER_CAPACITY }}" &>> .env
+            echo "CRONJOB_ETH_USD_SCHEDULE=\"${{ vars.CRONJOB_ETH_USD_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_UPDATE_CATEGORIES_SCHEDULE=\"${{ vars.CRONJOB_UPDATE_CATEGORIES_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_UPDATE_TOKENS_SCHEDULE=\"${{ vars.CRONJOB_UPDATE_TOKENS_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_GOOD_NEWS_MANAGER=\"${{ vars.CRONJOB_GOOD_NEWS_MANAGER }}\"" &>> .env
+            echo "CRONJOB_UPDATE_TOKEN_PRICE=\"${{ vars.CRONJOB_UPDATE_TOKEN_PRICE }}\"" &>> .env
+            echo "JWT_SECRET=\"${{ secrets.JWT_SECRET }}\"" &>> .env
+            echo "JWT_TELEBOT=\"${{ secrets.JWT_TELEBOT }}\"" &>> .env
+            echo "API_BASE_URL=${{ vars.PROD_API_BASE_URL }}" &>> .env
+            echo "APP_ENV=${{ vars.PROD_APP_ENV }}" &>> .env
+            echo "TELEBOT_USERNAME=${{ vars.PROD_TELEBOT_USERNAME }}" &>> .env
+            echo "ADMIN_API_KEY=${{ secrets.PROD_ADMIN_API_KEY }}" &>> .env
+            echo "FE_BASE_URL=\"${{ vars.PROD_FE_BASE_URL }}\"" &>> .env
+            echo "DOCS_LINK=\"${{ vars.PROD_DOCS_LINK }}\"" &>> .env
+
+            echo "PNPM INSTALL"
+            /home/jamesbot/.nvm/versions/node/v20.9.0/bin/pnpm install
+
+            echo "PRISMA MIGRATE DEPLOY"
+            /home/jamesbot/.nvm/versions/node/v20.9.0/bin/pnpm prisma:migrate:deploy
+
+            echo "PRISMA GENERATE"
+            /home/jamesbot/.nvm/versions/node/v20.9.0/bin/pnpm prisma:generate
+
+            echo "PRISMA SEED"
+            /home/jamesbot/.nvm/versions/node/v20.9.0/bin/pnpm prisma:seed
+
+            echo "RESTARTING TELEBOT AND CAPTAINHOOK"
+            echo "${{ secrets.PROD_PASS }}" | sudo -S systemctl restart telebot.service
+            echo "${{ secrets.PROD_PASS }}" | sudo -S systemctl restart webhook.service
+            echo "${{ secrets.PROD_PASS }}" | sudo -S systemctl restart solhook.service
+            echo "${{ secrets.PROD_PASS }}" | sudo -S systemctl restart listener.service
+            echo "${{ secrets.PROD_PASS }}" | sudo -S systemctl restart server.service

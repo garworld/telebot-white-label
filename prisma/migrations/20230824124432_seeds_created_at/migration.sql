@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "seeds" ADD COLUMN     "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;

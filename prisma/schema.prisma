@@ -1,0 +1,498 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum copy_type {
+  PERCENT
+  EXACT
+}
+
+enum activities {
+  BUYTOKEN
+  CATEGORYBUY
+  COPYTRADE
+  REFERRAL
+  SELLTOKEN
+  FIRSTBUYTOKEN
+  FIRSTCATEGORYBUY
+  FIRSTCOPYTRADE
+  FIRSTDEPOSIT
+  FIRSTSELLTOKEN
+}
+
+enum wallet_number {
+  FIRST
+  SECOND
+  THIRD
+}
+
+model diesel_schema_migrations {
+  version String   @id @db.VarChar(50)
+  run_on  DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("__diesel_schema_migrations")
+}
+
+model burns {
+  row_id           BigInt   @default(autoincrement())
+  id               String   @id
+  pair_address     String
+  transaction_hash String
+  block_timestamp  DateTime @db.Timestamp(6)
+  block_number     BigInt
+  log_index        Int
+  amount_0         Decimal  @db.Decimal
+  amount_1         Decimal  @db.Decimal
+  amount_usd       Float
+  amount_eth       Float
+  amount_0_eth     Float
+  amount_1_eth     Float
+  amount_0_usd     Float
+  amount_1_usd     Float
+  sender           String
+  receiver         String
+  created_at       DateTime @default(now()) @db.Timestamp(6)
+  updated_at       DateTime @default(now()) @db.Timestamp(6)
+}
+
+model configurations {
+  id         BigInt   @default(autoincrement())
+  key        String   @id
+  value      Json     @default("{}")
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
+}
+
+model mints {
+  row_id           BigInt   @default(autoincrement())
+  id               String   @id
+  pair_address     String
+  transaction_hash String
+  block_timestamp  DateTime @db.Timestamp(6)
+  block_number     BigInt
+  log_index        Int
+  amount_0         Decimal  @db.Decimal
+  amount_1         Decimal  @db.Decimal
+  amount_usd       Float
+  amount_eth       Float
+  amount_0_eth     Float
+  amount_1_eth     Float
+  amount_0_usd     Float
+  amount_1_usd     Float
+  sender           String
+  created_at       DateTime @default(now()) @db.Timestamp(6)
+  updated_at       DateTime @default(now()) @db.Timestamp(6)
+}
+
+model pairs {
+  id                     BigInt   @default(autoincrement())
+  factory_address        String
+  contract_address       String   @id
+  token_0                String
+  token_1                String
+  token_lhs              String
+  token_rhs              String
+  deploy_transaction     String
+  deploy_block_number    BigInt
+  deploy_block_timestamp DateTime @db.Timestamp(6)
+  deployer               String
+  created_at             DateTime @default(now()) @db.Timestamp(6)
+  updated_at             DateTime @default(now()) @db.Timestamp(6)
+}
+
+model syncs {
+  row_id           BigInt   @default(autoincrement())
+  id               String   @id
+  pair_address     String
+  reserve_0        Decimal  @db.Decimal
+  reserve_1        Decimal  @db.Decimal
+  quote_price      Float
+  quote_price_usd  Float
+  quote_price_eth  Float
+  block_timestamp  DateTime @db.Timestamp(6)
+  block_number     BigInt
+  transaction_hash String
+  log_index        Int
+  created_at       DateTime @default(now()) @db.Timestamp(6)
+  updated_at       DateTime @default(now()) @db.Timestamp(6)
+}
+
+model tokens {
+  id               BigInt   @default(autoincrement())
+  contract_address String   @id
+  decimals         BigInt
+  symbol           String
+  name             String
+  created_at       DateTime @default(now()) @db.Timestamp(6)
+  updated_at       DateTime @default(now()) @db.Timestamp(6)
+}
+
+model trades {
+  row_id           BigInt   @default(autoincrement())
+  id               String   @id
+  factory_address  String
+  pair_address     String
+  transaction_hash String
+  block_timestamp  DateTime @db.Timestamp(6)
+  block_number     BigInt
+  log_index        Int
+  trader           String
+  beneficiary      String
+  amount_in        Decimal  @db.Decimal
+  amount_out       Decimal  @db.Decimal
+  side             String
+  price_currency   Decimal  @db.Decimal
+  price_usd        Float
+  price_eth        Float
+  created_at       DateTime @default(now()) @db.Timestamp(6)
+  updated_at       DateTime @default(now()) @db.Timestamp(6)
+}
+
+model transactions {
+  id                BigInt   @default(autoincrement())
+  transaction_hash  String   @id
+  transaction_index BigInt
+  block_number      BigInt
+  block_hash        String
+  block_timestamp   DateTime @db.Timestamp(6)
+  origin            String
+  to                String
+  eth_price         Float
+  created_at        DateTime @default(now()) @db.Timestamp(6)
+  updated_at        DateTime @default(now()) @db.Timestamp(6)
+}
+
+model wallets {
+  id              BigInt    @default(autoincrement())
+  chatid          String    @unique
+  referral_key    String?
+  passkey         String?
+  partone_first   String?
+  partone_second  String?
+  partone_third   String?
+  parttwo_first   String?
+  parttwo_second  String?
+  parttwo_third   String?
+  first_buy       Boolean   @default(false)
+  first_sell      Boolean   @default(false)
+  first_category  Boolean   @default(false)
+  first_deposit   Boolean   @default(false)
+  first_copy      Boolean   @default(false)
+  activity_points Float     @default(0)
+  consecutive_day Int       @default(0)
+  created_at      DateTime? @default(now())
+}
+
+model copycat {
+  chatid       String
+  chain        Int
+  wallet_used  wallet_number[] @default([FIRST])
+  copy_type    copy_type
+  copy_buy     Boolean         @default(true)
+  copy_sell    Boolean         @default(false)
+  limit_amount Float
+  profit_sell  Boolean         @default(true)
+  target       copy_target[]
+
+  @@id([chatid, chain])
+}
+
+model copy_target {
+  id               BigInt    @id @default(autoincrement())
+  target_address   String
+  last_copy_amount Float?
+  copycat          copycat   @relation(fields: [chatid, chain], references: [chatid, chain])
+  chatid           String
+  chain            Int
+  webhook          webhook   @relation(fields: [webhook_id], references: [id])
+  webhook_id       String
+  last_copying_at  DateTime? @default(now())
+}
+
+model webhook {
+  id                String        @id
+  number_of_address Int           @default(0)
+  chain             String
+  target            copy_target[]
+}
+
+model wallet_activity {
+  id                 BigInt        @id @default(autoincrement())
+  chatid             String
+  wallet_number      wallet_number
+  activity           activities
+  volumes            Float         @default(0.00)
+  activity_time      DateTime      @default(now())
+  current_multiplier Float         @default(1.00)
+
+  // @@id([chatid, wallet_number])
+}
+
+model reference {
+  id        BigInt   @id @default(autoincrement())
+  referrer  String
+  recipient String   @unique
+  joined_at DateTime @default(now())
+}
+
+model activity_point {
+  id          BigInt     @id @default(autoincrement())
+  activity    activities
+  point       Float
+  factor      String?
+  starting_at DateTime   @default(now())
+}
+
+model multiplier {
+  id              Int      @id @default(autoincrement())
+  chain           Int
+  consecutive_day Int
+  used_wallet     Int
+  multiplication  Float
+  starting_at     DateTime @default(now())
+}
+
+model referral_point {
+  id             BigInt   @id @default(autoincrement())
+  chatid         String
+  activity_point Float    @default(0.00)
+  reference      String?
+  points_at      DateTime @default(now())
+}
+
+model point_tiers {
+  id          Int      @id @default(autoincrement())
+  tier_name   String   @unique
+  point_min   Int
+  point_max   Int?
+  price       Float
+  starting_at DateTime @default(now())
+}
+
+model chain_list {
+  id            Int      @id @default(autoincrement())
+  chain_name    String   @unique
+  chain_id      Int      @unique
+  rpc_provider  String   @unique
+  chain_scanner String   @unique
+  created_at    DateTime @default(now()) @db.Timestamp(6)
+  updated_at    DateTime @default(now()) @db.Timestamp(6)
+}
+
+model api_key {
+  id         BigInt    @default(autoincrement())
+  chatid     String    @unique
+  api_key    String
+  api_id     String
+  created_at DateTime? @default(now())
+}
+
+model coingecko_tokens {
+  id               String             @id
+  symbol           String
+  name             String
+  platforms        String
+  image_url        String?
+  created_at       DateTime           @default(now()) @db.Timestamp(6)
+  updated_at       DateTime           @default(now()) @db.Timestamp(6)
+  token_chain      token_chain[]
+  token_categories token_categories[]
+  token_price      token_price[]
+}
+
+model sniping_mode {
+  chatid          String
+  chain           Int
+  max_spend       Float
+  wallet_used     wallet_number[]
+  // auto_sell       Boolean         @default(false) // after buy then sell on what?
+  first_or_fail   Boolean         @default(true) // check gas price -1 wei , if fail on the same block, then failed
+  degen_mode      Boolean         @default(true) // * skip for tax (to token owner) the upper than limit if false
+  anti_rug        Boolean         @default(false) // * if true, sell first than the unexpected tax
+  max_tx          Boolean         @default(false) // if true, max tx set on contract > our spend limit to transaction then revert
+  min_tx          Boolean         @default(false) // if true, min tx set on contract > our spend limit to transaction then revert 
+  pre_approve     Boolean         @default(false) // if true, direct approve when snipe buying is succeedeed
+  tx_on_blacklist Boolean         @default(false) // * should tx even on blacklisted list
+  approve_gwei    Decimal         @default(30) // adding this amount of gwei then gas price
+  sell_gwei       Decimal         @default(30) // * when sell
+  anti_rug_gwei   Decimal         @default(30) // * when anti rug
+  buy_tax         Int             @default(10) // * higher than set tax on contract, then buy
+  sell_tax        Int             @default(10) // * higher then set tax on contract, then sell
+  min_liquidity   Int // on USD convert to ETH, if liquidity lower than this, then not trigger
+  max_liquidity   Int // on USD convert to ETH, if liquidity higher than this, then not trigger
+
+  @@id([chatid, chain])
+}
+
+model target_snipe {
+  chatid   String
+  chain    Int
+  address  String
+  amount   Decimal
+  tip      Decimal
+  slippage Int
+
+  @@id([chatid, chain, address])
+}
+
+model coingecko_categories {
+  id                    String             @id
+  name                  String
+  market_cap            Float
+  market_cap_change_24h Float              @default(0)
+  created_at            DateTime           @default(now()) @db.Timestamp(6)
+  updated_at            DateTime           @default(now()) @db.Timestamp(6)
+  token_categories      token_categories[]
+}
+
+model coingecko_chains {
+  id           String        @id
+  name         String
+  chain_number BigInt?
+  token_chain  token_chain[]
+}
+
+model token_chain {
+  token_address String
+  token_decimal Int?
+  token         coingecko_tokens @relation(fields: [token_id], references: [id])
+  token_id      String
+  chain         coingecko_chains @relation(fields: [chain_id], references: [id])
+  chain_id      String
+
+  @@id([token_address, chain_id])
+}
+
+model token_categories {
+  token       coingecko_tokens     @relation(fields: [token_id], references: [id])
+  token_id    String
+  category    coingecko_categories @relation(fields: [category_id], references: [id])
+  category_id String
+
+  @@id([token_id, category_id])
+}
+
+model token_price {
+  token                     coingecko_tokens @relation(fields: [token_id], references: [id])
+  token_id                  String
+  usd_price                 Float
+  price_change_24h          Float            @default(0)
+  price_change_24h_percent  Float            @default(0)
+  price_change_7d_percent   Float            @default(0)
+  price_change_14d_percent  Float            @default(0)
+  price_change_30d_percent  Float            @default(0)
+  price_change_200d_percent Float            @default(0)
+  price_change_1y_percent   Float            @default(0)
+  market_change_24h         Float            @default(0)
+  market_change_24h_percent Float            @default(0)
+  total_volume_usd          Float            @default(0)
+  created_at                DateTime         @default(now()) @db.Timestamp(6)
+  updated_at                DateTime         @default(now()) @db.Timestamp(6)
+
+  @@id([token_id])
+}
+
+model wallet_transactions {
+  id            Int           @id @default(autoincrement())
+  chatid        String
+  chain         Int
+  wallet_number wallet_number
+  activity      activities
+}
+
+model client {
+  id          Int      @id @default(autoincrement())
+  api_key     String   @unique
+  client_name String
+  client_link String   @unique
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @db.Timestamp(6)
+}
+
+model autobuy {
+  chatid      String          @id
+  wallet_used wallet_number[] @default([FIRST])
+  amount      Float           @default(1000)
+  unit        String?
+  slippage    Float           @default(10)
+  is_private  Boolean         @default(false)
+  is_active   Boolean?        @default(false)
+}
+
+model launchpad {
+  contract          String   @id
+  base_token        String?
+  special_token     String?
+  token             String
+  chain             Int
+  presale_title     String
+  token_image       String?
+  token_description String?
+  token_background  String?
+  token_weblink     String?
+  token_telegram    String?
+  token_twitter     String?
+  token_github      String?
+  token_instagram   String?
+  token_youtube     String?
+  owner             String
+  presalerate       Int
+  softcap           Int
+  hardcap           Int
+  minbuy            Float
+  maxbuy            Float
+  special_starttime Int?
+  is_autolist       Boolean
+  is_whitelist      Boolean
+  starttime         Int
+  endtime           Int
+  created_at        DateTime @default(now()) @db.Timestamp(6)
+}
+
+model hodling {
+  chatid            String
+  chain             Int
+  wallet_number     wallet_number
+  token             String
+  amount_token      Float
+  amount_makers_usd Float
+  created_at        DateTime      @default(now()) @db.Timestamp(6)
+  updated_at        DateTime?     @default(now()) @db.Timestamp(6)
+
+  @@id([chatid, chain, wallet_number, token])
+}
+
+model dexscreener_token {
+  token         String
+  chain         Int
+  price_usd     Float
+  liquidity_usd Float
+  fdv           Float
+  lp_token      BigInt?
+  lp_current    BigInt?
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+  updated_at    DateTime? @default(now()) @db.Timestamp(6)
+
+  @@id([token, chain])
+}
+
+model elevate_settings {
+  chatid               String
+  chain                Int
+  wallet_used          String?
+  mev_protect          Boolean @default(false)
+  hide_low_liquidity   Boolean @default(true)
+  slippage             Float   @default(10)
+  autobuy_amount       Float?
+  autobuy_active       Boolean @default(false)
+  autosell_up_amount   Float?
+  autosell_down_amount Float?
+  autosell_active      Boolean @default(false)
+
+  @@id([chatid, chain])
+}

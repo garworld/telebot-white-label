@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "hodling" ALTER COLUMN "amount_token" SET DATA TYPE DOUBLE PRECISION;

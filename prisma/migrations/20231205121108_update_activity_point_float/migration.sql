@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "activity_point" ALTER COLUMN "point" SET DATA TYPE DOUBLE PRECISION;

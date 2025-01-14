@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "api_key" ADD COLUMN     "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;

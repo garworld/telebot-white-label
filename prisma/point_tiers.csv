@@ -1,0 +1,11 @@
+tier_name,point_min,point_max,fees
+Recruit,0.00,"20000.00",1.00
+Secret Agent,"20000.00","100000.00",0.95
+Special Operative,"100000.00","400000.00",0.90
+Undercover Expert,"400000.00","1000000.00",0.85
+Intelligence Officer,"1000000.00","2000000.00",0.75
+Private Investigator,"2000000.00","3500000.00",0.70
+Master Infiltrator,"3500000.00","6000000.00",0.65
+Espionage Elite,"6000000.00","10000000.00",0.60
+Top Secret Agent,"10000000.00","25000000.00",0.50
+The Spymaster,"25000000.00",null,0.35

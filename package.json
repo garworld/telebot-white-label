@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "mkdir -p data && mkdir -p data/bg && mkdir -p data/img",
+    "postinstall": "if not exist data mkdir data && if not exist data\\bg mkdir data\\bg && if not exist data\\img mkdir data\\img",
     "prisma:init": "prisma init --datasource-provider postgresql",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
@@ -83,6 +83,7 @@
     "yocto-queue": "0.1.0"
   },
   "devDependencies": {
+    "mkdirp": "^3.0.1",
     "nodemon": "^3.0.1",
     "pino-pretty": "^10.2.0",
     "prisma": "^5.5.2"

@@ -1,0 +1,11 @@
+activity,point,factor
+BUYTOKEN,10.00,wallet_activity.volumes
+CATEGORYBUY,10.00,wallet_activity.volumes
+COPYTRADE,10.00,wallet_activity.volumes
+REFERRAL,0.30,referral_point.activity_point
+SELLTOKEN,10.00,wallet_activity.volumes
+FIRSTBUYTOKEN,"7500.00",null
+FIRSTCATEGORYBUY,"10000.00",null
+FIRSTCOPYTRADE,"15000.00",null
+FIRSTDEPOSIT,"2500.00",null
+FIRSTSELLTOKEN,"7500.00",null

@@ -1,0 +1,288 @@
+name: JemmmsBot Deployment
+on:
+  push:
+    branches:
+      - development
+jobs:
+  ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1.1 Deploy to JemmmsBot VM
+      - name: Deploy
+        uses: cross-the-world/ssh-pipeline@v1.2.0
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          user: ${{ secrets.DEV_USER }}
+          pass: ${{ secrets.DEV_PASS }}
+          port: ${{ secrets.DEV_PORT }}
+          connect_timeout: 10s
+          script: |
+            cd /home/jamesbot/telebot/
+
+            git pull --rebase
+
+            touch .env
+            echo "DATABASE_URL=${{ secrets.DEV_DATABASE_URL }}" &> .env
+            echo "TELEBOT=${{ secrets.DEV_TELEBOT }}" &>> .env
+            echo "MORALIS_KEY=${{ secrets.DEV_MORALIS_KEY }}" &>> .env
+            echo "COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }}" &>> .env
+            echo "RPC_PROVIDER=${{ secrets.RPC_PROVIDER }}" &>> .env
+            echo "ETH_RPC_PROVIDER=${{ secrets.ETH_RPC_PROVIDER }}" &>> .env
+            echo "ARB_RPC_PROVIDER=${{ secrets.ARB_RPC_PROVIDER }}" &>> .env
+            echo "AVA_RPC_PROVIDER=${{ secrets.AVA_RPC_PROVIDER }}" &>> .env
+            echo "BASE_RPC_PROVIDER=${{ secrets.BASE_RPC_PROVIDER }}" &>> .env
+            echo "METIS_RPC_PROVIDER=\"${{ secrets.METIS_RPC_PROVIDER }}\"" &>> .env
+            echo "SOLANA_RPC_PROVIDER=\"${{ secrets.SOLANA_RPC_PROVIDER }}\"" &>> .env
+            echo "HELIUS_API_KEY=\"${{ secrets.DEV_HELIUS_KEY }}\"" &>> .env
+            echo "REDIS_URL=${{ secrets.DEV_REDIS_URL }}" &>> .env
+            echo "PLATFORM_WALLET=${{ secrets.PLATFORM_WALLET }}" &>> .env
+            echo "ONE_INCH_API_KEY=${{ secrets.ONE_INCH_API_KEY }}" &>> .env
+            echo "SECRET_KEY=${{ secrets.DEV_SECRET_KEY }}" &>> .env
+            echo "WEB3AUTH_CLIENT_ID=${{ secrets.DEV_WEB3AUTH_CLIENT_ID }}" &>> .env
+            echo "WEB3AUTH_VERIFIER=${{ secrets.DEV_WEB3AUTH_VERIFIER }}" &>> .env
+            echo "WEB3AUTH_AUD=${{ secrets.DEV_WEB3AUTH_AUD }}" &>> .env
+            echo "WEB3AUTH_ISS=${{ secrets.DEV_WEB3AUTH_ISS }}" &>> .env
+            echo "WEB3AUTH_KEY_ID=${{ secrets.DEV_WEB3AUTH_KEY_ID }}" &>> .env
+            echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" &>> .env
+            echo "ALCHEMY_KEY=${{ secrets.DEV_ALCHEMY_KEY }}" &>> .env
+            echo "ALCHEMY_WEBHOOK_KEY=${{ secrets.DEV_ALCHEMY_WEBHOOK_KEY }}" &>> .env
+            echo "ARB_WEBHOOK_URL=${{ vars.DEV_ARB_WEBHOOK_URL }}" &>> .env
+            echo "ETH_WEBHOOK_URL=${{ vars.DEV_ETH_WEBHOOK_URL }}" &>> .env
+            echo "SOL_WEBHOOK_URL=${{ vars.DEV_SOL_WEBHOOK_URL }}" &>> .env
+            echo "TELEBOT_URL=${{ vars.DEV_TELEBOT_URL }}" &>> .env
+            echo "PLATFORM_SOL_WALLET=${{ secrets.DEV_PLATFORM_SOL_WALLET }}" &>> .env
+            echo "MESSENGER_CAPACITY=${{ vars.DEV_MESSENGER_CAPACITY }}" &>> .env
+            echo "CRONJOB_ETH_USD_SCHEDULE=\"${{ vars.CRONJOB_ETH_USD_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_UPDATE_CATEGORIES_SCHEDULE=\"${{ vars.CRONJOB_UPDATE_CATEGORIES_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_UPDATE_TOKENS_SCHEDULE=\"${{ vars.CRONJOB_UPDATE_TOKENS_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_GOOD_NEWS_MANAGER=\"${{ vars.CRONJOB_GOOD_NEWS_MANAGER }}\"" &>> .env
+            echo "CRONJOB_UPDATE_TOKEN_PRICE=\"${{ vars.CRONJOB_UPDATE_TOKEN_PRICE }}\"" &>> .env
+            echo "JWT_SECRET=\"${{ secrets.JWT_SECRET }}\"" &>> .env
+            echo "JWT_TELEBOT=\"${{ secrets.JWT_TELEBOT }}\"" &>> .env
+            echo "API_BASE_URL=${{ vars.DEV_API_BASE_URL }}" &>> .env
+            echo "APP_ENV=${{ vars.DEV_APP_ENV }}" &>> .env
+            echo "TELEBOT_USERNAME=${{ vars.DEV_TELEBOT_USERNAME }}" &>> .env
+            echo "ADMIN_API_KEY=${{ secrets.DEV_ADMIN_API_KEY }}" &>> .env
+            echo "FE_BASE_URL=\"${{ vars.DEV_TELEBOT_FE_BASE_URL }}\"" &>> .env
+            echo "DOCS_LINK=\"${{ vars.DEV_DOCS_LINK }}\"" &>> .env
+            echo "LAUNCHPAD_URL=\"${{ vars.DEV_LAUNCHPAD_URL }}\"" &>> .env
+            echo "ETH_USDC_ADDRESS=\"${{ vars.ETH_USDC_ADDRESS }}\"" &>> .env
+            echo "ARB_USDC_ADDRESS=\"${{ vars.ARB_USDC_ADDRESS }}\"" &>> .env
+            echo "AVA_USDC_ADDRESS=\"${{ vars.AVA_USDC_ADDRESS }}\"" &>> .env
+            echo "BASE_USDC_ADDRESS=\"${{ vars.BASE_USDC_ADDRESS }}\"" &>> .env
+            echo "SOLANA_USDC_ADDRESS=\"${{ vars.SOLANA_USDC_ADDRESS }}\"" &>> .env
+            echo "METIS_USDC_ADDRESS=\"${{ vars.METIS_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_USDC_ADDRESS=\"${{ vars.TESTNET_ETH_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_USDC_ADDRESS=\"${{ vars.TESTNET_ARB_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_USDC_ADDRESS=\"${{ vars.TESTNET_AVA_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_USDC_ADDRESS=\"${{ vars.TESTNET_BASE_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_USDC_ADDRESS=\"${{ vars.TESTNET_SOLANA_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_USDC_ADDRESS=\"${{ vars.TESTNET_METIS_USDC_ADDRESS }}\"" &>> .env
+            echo "ETH_USDT_ADDRESS=\"${{ vars.ETH_USDT_ADDRESS }}\"" &>> .env
+            echo "ARB_USDT_ADDRESS=\"${{ vars.ARB_USDT_ADDRESS }}\"" &>> .env
+            echo "AVA_USDT_ADDRESS=\"${{ vars.AVA_USDT_ADDRESS }}\"" &>> .env
+            echo "BASE_USDT_ADDRESS=\"${{ vars.BASE_USDT_ADDRESS }}\"" &>> .env
+            echo "SOLANA_USDT_ADDRESS=\"${{ vars.SOLANA_USDT_ADDRESS }}\"" &>> .env
+            echo "METIS_USDT_ADDRESS=\"${{ vars.METIS_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_USDT_ADDRESS=\"${{ vars.TESTNET_ETH_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_USDT_ADDRESS=\"${{ vars.TESTNET_ARB_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_USDT_ADDRESS=\"${{ vars.TESTNET_AVA_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_USDT_ADDRESS=\"${{ vars.TESTNET_BASE_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_USDT_ADDRESS=\"${{ vars.TESTNET_SOLANA_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_USDT_ADDRESS=\"${{ vars.TESTNET_METIS_USDT_ADDRESS }}\"" &>> .env
+            echo "ETH_FACTORY_ERC20_ADDRESS=\"${{ vars.ETH_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "ARB_FACTORY_ERC20_ADDRESS=\"${{ vars.ARB_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "AVA_FACTORY_ERC20_ADDRESS=\"${{ vars.AVA_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "BASE_FACTORY_ERC20_ADDRESS=\"${{ vars.BASE_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "SOLANA_FACTORY_ERC20_ADDRESS=\"${{ vars.SOLANA_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "METIS_FACTORY_ERC20_ADDRESS=\"${{ vars.METIS_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_ETH_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_ARB_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_AVA_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_BASE_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_SOLANA_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_METIS_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "ETH_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.ETH_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "ARB_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.ARB_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "AVA_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.AVA_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "BASE_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.BASE_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "SOLANA_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.SOLANA_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "METIS_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.METIS_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_ETH_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_ARB_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_AVA_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_BASE_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_SOLANA_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_METIS_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "ETH_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.ETH_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "ARB_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.ARB_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "AVA_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.AVA_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "BASE_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.BASE_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "SOLANA_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.SOLANA_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "METIS_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.METIS_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_ETH_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_ARB_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_AVA_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_BASE_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_SOLANA_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_RPC_PROVIDER=\"${{ secrets.TESTNET_ETH_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_ARB_RPC_PROVIDER=\"${{ secrets.TESTNET_ARB_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_AVA_RPC_PROVIDER=\"${{ secrets.TESTNET_AVA_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_BASE_RPC_PROVIDER=\"${{ secrets.TESTNET_BASE_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_SOLANA_RPC_PROVIDER=\"${{ secrets.TESTNET_SOLANA_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_METIS_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_METIS_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_RPC_PROVIDER=\"${{ secrets.TESTNET_METIS_RPC_PROVIDER }}\"" &>> .env
+            echo "BOT_PORT=${{ vars.DEV_TELEBOT_PORT }}" &>> .env
+
+            echo "PNPM INSTALL"
+            /home/jamesbot/.nvm/versions/node/v18.18.0/bin/pnpm install
+
+            echo "PRISMA MIGRATE DEPLOY"
+            /home/jamesbot/.nvm/versions/node/v18.18.0/bin/pnpm prisma:migrate:deploy
+
+            echo "PRISMA GENERATE"
+            /home/jamesbot/.nvm/versions/node/v18.18.0/bin/pnpm prisma:generate
+
+            echo "PRISMA SEED"
+            /home/jamesbot/.nvm/versions/node/v18.18.0/bin/pnpm prisma:seed
+
+            cd /home/jamesbot/elevatebot/
+
+            git pull --rebase
+
+            touch .env
+            echo "DATABASE_URL=${{ secrets.DEV_DATABASE_URL }}" &> .env
+            echo "TELEBOT=${{ secrets.DEV_ELEVATEBOT }}" &>> .env
+            echo "MORALIS_KEY=${{ secrets.DEV_MORALIS_KEY }}" &>> .env
+            echo "COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }}" &>> .env
+            echo "RPC_PROVIDER=${{ secrets.RPC_PROVIDER }}" &>> .env
+            echo "ETH_RPC_PROVIDER=${{ secrets.ETH_RPC_PROVIDER }}" &>> .env
+            echo "ARB_RPC_PROVIDER=${{ secrets.ARB_RPC_PROVIDER }}" &>> .env
+            echo "AVA_RPC_PROVIDER=${{ secrets.AVA_RPC_PROVIDER }}" &>> .env
+            echo "BASE_RPC_PROVIDER=${{ secrets.BASE_RPC_PROVIDER }}" &>> .env
+            echo "METIS_RPC_PROVIDER=\"${{ secrets.METIS_RPC_PROVIDER }}\"" &>> .env
+            echo "SOLANA_RPC_PROVIDER=\"${{ secrets.SOLANA_RPC_PROVIDER }}\"" &>> .env
+            echo "HELIUS_API_KEY=\"${{ secrets.DEV_HELIUS_KEY }}\"" &>> .env
+            echo "REDIS_URL=${{ secrets.DEV_REDIS_URL }}" &>> .env
+            echo "PLATFORM_WALLET=${{ secrets.PLATFORM_WALLET }}" &>> .env
+            echo "ONE_INCH_API_KEY=${{ secrets.ONE_INCH_API_KEY }}" &>> .env
+            echo "SECRET_KEY=${{ secrets.DEV_SECRET_KEY }}" &>> .env
+            echo "WEB3AUTH_CLIENT_ID=${{ secrets.DEV_WEB3AUTH_CLIENT_ID }}" &>> .env
+            echo "WEB3AUTH_VERIFIER=${{ secrets.DEV_WEB3AUTH_VERIFIER }}" &>> .env
+            echo "WEB3AUTH_AUD=${{ secrets.DEV_WEB3AUTH_AUD }}" &>> .env
+            echo "WEB3AUTH_ISS=${{ secrets.DEV_WEB3AUTH_ISS }}" &>> .env
+            echo "WEB3AUTH_KEY_ID=${{ secrets.DEV_WEB3AUTH_KEY_ID }}" &>> .env
+            echo "COINGECKO_API_KEY=${{ secrets.COINGECKO_API_KEY }}" &>> .env
+            echo "ALCHEMY_KEY=${{ secrets.DEV_ALCHEMY_KEY }}" &>> .env
+            echo "ALCHEMY_WEBHOOK_KEY=${{ secrets.DEV_ALCHEMY_WEBHOOK_KEY }}" &>> .env
+            echo "ARB_WEBHOOK_URL=${{ vars.DEV_ARB_WEBHOOK_URL }}" &>> .env
+            echo "ETH_WEBHOOK_URL=${{ vars.DEV_ETH_WEBHOOK_URL }}" &>> .env
+            echo "SOL_WEBHOOK_URL=${{ vars.DEV_SOL_WEBHOOK_URL }}" &>> .env
+            echo "TELEBOT_URL=${{ vars.DEV_ELEVATEBOT_URL }}" &>> .env
+            echo "PLATFORM_SOL_WALLET=${{ secrets.DEV_PLATFORM_SOL_WALLET }}" &>> .env
+            echo "MESSENGER_CAPACITY=${{ vars.DEV_MESSENGER_CAPACITY }}" &>> .env
+            echo "CRONJOB_ETH_USD_SCHEDULE=\"${{ vars.CRONJOB_ETH_USD_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_UPDATE_CATEGORIES_SCHEDULE=\"${{ vars.CRONJOB_UPDATE_CATEGORIES_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_UPDATE_TOKENS_SCHEDULE=\"${{ vars.CRONJOB_UPDATE_TOKENS_SCHEDULE }}\"" &>> .env
+            echo "CRONJOB_GOOD_NEWS_MANAGER=\"${{ vars.CRONJOB_GOOD_NEWS_MANAGER }}\"" &>> .env
+            echo "CRONJOB_UPDATE_TOKEN_PRICE=\"${{ vars.CRONJOB_UPDATE_TOKEN_PRICE }}\"" &>> .env
+            echo "JWT_SECRET=\"${{ secrets.JWT_SECRET }}\"" &>> .env
+            echo "JWT_TELEBOT=\"${{ secrets.JWT_TELEBOT }}\"" &>> .env
+            echo "API_BASE_URL=${{ vars.DEV_API_BASE_URL }}" &>> .env
+            echo "APP_ENV=${{ vars.DEV_APP_ENV }}" &>> .env
+            echo "TELEBOT_USERNAME=${{ vars.DEV_ELEVATEBOT_USERNAME }}" &>> .env
+            echo "ADMIN_API_KEY=${{ secrets.DEV_ADMIN_API_KEY }}" &>> .env
+            echo "FE_BASE_URL=\"${{ vars.DEV_ELEVATEBOT_FE_BASE_URL }}\"" &>> .env
+            echo "DOCS_LINK=\"${{ vars.DEV_DOCS_LINK }}\"" &>> .env
+            echo "LAUNCHPAD_URL=\"${{ vars.DEV_LAUNCHPAD_URL }}\"" &>> .env
+            echo "ETH_USDC_ADDRESS=\"${{ vars.ETH_USDC_ADDRESS }}\"" &>> .env
+            echo "ARB_USDC_ADDRESS=\"${{ vars.ARB_USDC_ADDRESS }}\"" &>> .env
+            echo "AVA_USDC_ADDRESS=\"${{ vars.AVA_USDC_ADDRESS }}\"" &>> .env
+            echo "BASE_USDC_ADDRESS=\"${{ vars.BASE_USDC_ADDRESS }}\"" &>> .env
+            echo "SOLANA_USDC_ADDRESS=\"${{ vars.SOLANA_USDC_ADDRESS }}\"" &>> .env
+            echo "METIS_USDC_ADDRESS=\"${{ vars.METIS_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_USDC_ADDRESS=\"${{ vars.TESTNET_ETH_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_USDC_ADDRESS=\"${{ vars.TESTNET_ARB_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_USDC_ADDRESS=\"${{ vars.TESTNET_AVA_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_USDC_ADDRESS=\"${{ vars.TESTNET_BASE_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_USDC_ADDRESS=\"${{ vars.TESTNET_SOLANA_USDC_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_USDC_ADDRESS=\"${{ vars.TESTNET_METIS_USDC_ADDRESS }}\"" &>> .env
+            echo "ETH_USDT_ADDRESS=\"${{ vars.ETH_USDT_ADDRESS }}\"" &>> .env
+            echo "ARB_USDT_ADDRESS=\"${{ vars.ARB_USDT_ADDRESS }}\"" &>> .env
+            echo "AVA_USDT_ADDRESS=\"${{ vars.AVA_USDT_ADDRESS }}\"" &>> .env
+            echo "BASE_USDT_ADDRESS=\"${{ vars.BASE_USDT_ADDRESS }}\"" &>> .env
+            echo "SOLANA_USDT_ADDRESS=\"${{ vars.SOLANA_USDT_ADDRESS }}\"" &>> .env
+            echo "METIS_USDT_ADDRESS=\"${{ vars.METIS_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_USDT_ADDRESS=\"${{ vars.TESTNET_ETH_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_USDT_ADDRESS=\"${{ vars.TESTNET_ARB_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_USDT_ADDRESS=\"${{ vars.TESTNET_AVA_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_USDT_ADDRESS=\"${{ vars.TESTNET_BASE_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_USDT_ADDRESS=\"${{ vars.TESTNET_SOLANA_USDT_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_USDT_ADDRESS=\"${{ vars.TESTNET_METIS_USDT_ADDRESS }}\"" &>> .env
+            echo "ETH_FACTORY_ERC20_ADDRESS=\"${{ vars.ETH_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "ARB_FACTORY_ERC20_ADDRESS=\"${{ vars.ARB_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "AVA_FACTORY_ERC20_ADDRESS=\"${{ vars.AVA_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "BASE_FACTORY_ERC20_ADDRESS=\"${{ vars.BASE_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "SOLANA_FACTORY_ERC20_ADDRESS=\"${{ vars.SOLANA_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "METIS_FACTORY_ERC20_ADDRESS=\"${{ vars.METIS_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_ETH_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_ARB_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_AVA_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_BASE_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_SOLANA_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_FACTORY_ERC20_ADDRESS=\"${{ vars.TESTNET_METIS_FACTORY_ERC20_ADDRESS }}\"" &>> .env
+            echo "ETH_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.ETH_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "ARB_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.ARB_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "AVA_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.AVA_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "BASE_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.BASE_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "SOLANA_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.SOLANA_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "METIS_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.METIS_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_ETH_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_ARB_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_AVA_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_BASE_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_SOLANA_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_FACTORY_ITO_NATIVE_ADDRESS=\"${{ vars.TESTNET_METIS_FACTORY_ITO_NATIVE_ADDRESS }}\"" &>> .env
+            echo "ETH_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.ETH_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "ARB_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.ARB_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "AVA_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.AVA_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "BASE_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.BASE_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "SOLANA_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.SOLANA_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "METIS_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.METIS_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_ETH_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ARB_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_ARB_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_AVA_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_AVA_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_BASE_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_BASE_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_SOLANA_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_SOLANA_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_ETH_RPC_PROVIDER=\"${{ secrets.TESTNET_ETH_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_ARB_RPC_PROVIDER=\"${{ secrets.TESTNET_ARB_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_AVA_RPC_PROVIDER=\"${{ secrets.TESTNET_AVA_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_BASE_RPC_PROVIDER=\"${{ secrets.TESTNET_BASE_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_SOLANA_RPC_PROVIDER=\"${{ secrets.TESTNET_SOLANA_RPC_PROVIDER }}\"" &>> .env
+            echo "TESTNET_METIS_FACTORY_ITO_ERC20_ADDRESS=\"${{ vars.TESTNET_METIS_FACTORY_ITO_ERC20_ADDRESS }}\"" &>> .env
+            echo "TESTNET_METIS_RPC_PROVIDER=\"${{ secrets.TESTNET_METIS_RPC_PROVIDER }}\"" &>> .env
+            echo "BOT_PORT=${{ vars.DEV_ELEVATEBOT_PORT }}" &>> .env
+
+            echo "PNPM INSTALL"
+            /home/jamesbot/.nvm/versions/node/v18.18.0/bin/pnpm install
+
+            echo "PRISMA MIGRATE DEPLOY"
+            /home/jamesbot/.nvm/versions/node/v18.18.0/bin/pnpm prisma:migrate:deploy
+
+            echo "PRISMA GENERATE"
+            /home/jamesbot/.nvm/versions/node/v18.18.0/bin/pnpm prisma:generate
+
+            echo "PRISMA SEED"
+            /home/jamesbot/.nvm/versions/node/v18.18.0/bin/pnpm prisma:seed
+
+            echo "RESTARTING TELEBOT AND FRIENDS"
+            echo "${{ secrets.DEV_PASS }}" | sudo -S systemctl restart telebot.service
+            echo "${{ secrets.DEV_PASS }}" | sudo -S systemctl restart webhook.service
+            echo "${{ secrets.DEV_PASS }}" | sudo -S systemctl restart solhook.service
+            echo "${{ secrets.DEV_PASS }}" | sudo -S systemctl restart listener.service
+            echo "${{ secrets.DEV_PASS }}" | sudo -S systemctl restart server.service
+            echo "${{ secrets.DEV_PASS }}" | sudo -S systemctl restart elevatebot.service
